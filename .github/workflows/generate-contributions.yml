@@ -1,0 +1,30 @@
+name: Update Contribution Graph
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # اجرای روزانه در نیمه‌شب UTC
+  workflow_dispatch:  # امکان اجرای دستی
+
+jobs:
+  update-graph:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Generate Contribution Graph
+        uses: Platane/snk@main
+        with:
+          github_user_name: ${{ github.repository_owner }}
+          outputs: |
+            contributions.svg
+            contributions.gif
+
+      - name: Commit and Push Changes
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git add contributions.*
+          git commit -m "Update contribution graph" || echo "No changes to commit"
+          git push
